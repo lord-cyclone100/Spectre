@@ -1,10 +1,18 @@
 import { Editor } from "@monaco-editor/react";
+import * as monaco from 'monaco-editor'
 import "./App.css";
 import { useState, useRef, useEffect } from "react";
+import { tabs } from "./api/tabs";
 
 export const App = () => {
   const [sideBarWidth, setSideBarWidth] = useState(16);
   const dragging = useRef(false);
+
+  const languages = monaco.languages.getLanguages();
+
+// Print their IDs
+const languageIds = languages.map(lang => lang.id);
+console.log(languageIds);
 
   const handleMouseDown = () => {
     dragging.current = true;
@@ -41,7 +49,13 @@ export const App = () => {
   return (
    <>
    <div className="flex flex-col">
-    <div className="h-[2.8vh]"></div>
+    <div className="h-[2.8vh] flex">
+      {
+        tabs.map((tabname)=>(
+          <button className="btn btn-info h-[100%]">{tabname}</button>
+        ))
+      }
+    </div>
     <div className="flex h-[97.2vh]">
       <div style={{ width: `${sideBarWidth}vw` }} className="bg-amber-400 relative">
         {/* Sidebar content goes here */}
@@ -53,6 +67,7 @@ export const App = () => {
         />
       </div>
       <div style={{ width: `${100 - sideBarWidth}vw` }}className="bg-rose-400">
+        <div className="[10vh]">dfsdf</div>
         <Editor height="100%"
           width="100%"
           defaultLanguage="javascript"
