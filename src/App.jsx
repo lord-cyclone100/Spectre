@@ -3,16 +3,24 @@ import * as monaco from 'monaco-editor'
 import "./App.css";
 import { useState, useRef, useEffect } from "react";
 import { tabs } from "./api/tabs";
+import { open } from "@tauri-apps/plugin-dialog";
+import { readTextFile } from "@tauri-apps/plugin-fs";
 
 export const App = () => {
   const [sideBarWidth, setSideBarWidth] = useState(16);
+  const [editorValue, setEditorValue] = useState("");
+  const [tabFileName, setTabFileName] = useState("");
+  const [fileExtension, setFileExtension] = useState("");
   const dragging = useRef(false);
 
   const languages = monaco.languages.getLanguages();
 
-// Print their IDs
-const languageIds = languages.map(lang => lang.id);
-console.log(languageIds);
+  const extensionsByLanguage = languages.map(lang => ({
+    id: lang.id,
+    extensions: lang.extensions || []
+  }));
+
+  console.log(extensionsByLanguage);
 
   const handleMouseDown = () => {
     dragging.current = true;
@@ -46,6 +54,30 @@ console.log(languageIds);
     };
   });
 
+  const handleClick = async() => {
+    const file = await open({
+      multiple: false,
+      directory: false,
+    });
+    if (file) {
+      // Read file content using Tauri's FS API
+      const content = await readTextFile(file);
+      setEditorValue(content);
+    }
+    const fileName = file.split('\\')
+    const fileExtension = fileName[fileName.length -1].split('.')[1]
+    setTabFileName(fileName[fileName.length -1])
+    setFileExtension(fileExtension)
+  }
+
+  const getLanguageByExtension = (ext) => {
+  // Find the language whose extensions include the given extension
+  const lang = languages.find(lang =>
+    (lang.extensions || []).some(e => e.replace('.', '') === ext)
+  );
+  return lang ? lang.id : "plaintext";
+};
+
   return (
    <>
    <div className="flex flex-col">
@@ -61,17 +93,20 @@ console.log(languageIds);
         {/* Sidebar content goes here */}
         
         {/* Draggable resize handle */}
+        <button className="btn" onClick={handleClick}>Open</button>
         <div
           onMouseDown={handleMouseDown}
           className="absolute top-0 right-0 h-full w-1 cursor-ew-resize hover:w-2 bg-black/10 hover:bg-black/20 transition-all duration-150"
         />
       </div>
       <div style={{ width: `${100 - sideBarWidth}vw` }}className="bg-rose-400">
-        <div className="[10vh]">dfsdf</div>
-        <Editor height="100%"
+        <div className="h-[4vh]">{tabFileName}</div>
+        <Editor height="96vh"
           width="100%"
-          defaultLanguage="javascript"
-          defaultValue="dfsdf"
+          // defaultLanguage="javascript"
+          language={getLanguageByExtension(fileExtension)}
+          value={editorValue}
+          // onChange={setEditorValue}
           theme="vs-dark"
           options={{
             fontSize:16,
