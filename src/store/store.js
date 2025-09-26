@@ -15,4 +15,9 @@ const useTabFileName = create((set) => ({
     setTabFileName: (val) => set({ tabFileName: val }),
 }))
 
-export {useExtension, useEditorValue, useTabFileName}
+const useNewFileModal = create((set) => ({
+    isNewFileModalOpen: false,
+    setIsNewFileModalOpen: (val) => set({ isNewFileModalOpen: val }),
+}))
+
+export {useExtension, useEditorValue, useTabFileName, useNewFileModal}

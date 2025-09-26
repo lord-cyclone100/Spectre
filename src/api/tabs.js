@@ -4,6 +4,8 @@ export const tabs = [
     submenu:[
       {name:"New"},
       {name:"Open"},
+      {name:"Save"},
+      {name:"Save As"},
     ]
   },
   {

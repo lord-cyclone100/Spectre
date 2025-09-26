@@ -4,13 +4,15 @@ import "./App.css";
 import { useState, useRef, useEffect } from "react";
 import { tabs } from "./api/tabs";
 import { MenuTab } from "./components/MenuTab";
-import { useEditorValue, useExtension, useTabFileName } from "./store/store";
+import { NewFileModal } from "./components/NewFileModal";
+import { useEditorValue, useExtension, useTabFileName, useNewFileModal } from "./store/store";
 
 export const App = () => {
   const [sideBarWidth, setSideBarWidth] = useState(16);
   const { fileExtension, setFileExtension } = useExtension()
   const { editorValue, setEditorValue } = useEditorValue()
   const { tabFileName, setTabFileName } = useTabFileName()
+  const { isNewFileModalOpen, setIsNewFileModalOpen } = useNewFileModal()
   const dragging = useRef(false);
 
   const languages = monaco.languages.getLanguages();
@@ -62,8 +64,22 @@ export const App = () => {
   return lang ? lang.id : "plaintext";
 };
 
+  const handleModalClose = () => {
+    setIsNewFileModalOpen(false);
+  };
+
+  const handleModalConfirm = (fileName) => {
+    setIsNewFileModalOpen(false);
+    // Additional logic can be added here if needed
+  };
+
   return (
    <>
+   <NewFileModal 
+     isOpen={isNewFileModalOpen}
+     onClose={handleModalClose}
+     onConfirm={handleModalConfirm}
+   />
    <div className="flex flex-col">
     <div className="h-[2.8vh] flex bg-emerald-400 items-center">
       {
@@ -99,7 +115,6 @@ export const App = () => {
           }}
         />
       </div>
-
     </div>
    </div>
    </> 
