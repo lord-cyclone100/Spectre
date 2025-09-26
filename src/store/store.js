@@ -20,4 +20,9 @@ const useNewFileModal = create((set) => ({
     setIsNewFileModalOpen: (val) => set({ isNewFileModalOpen: val }),
 }))
 
-export {useExtension, useEditorValue, useTabFileName, useNewFileModal}
+const useCurrentFilePath = create((set) => ({
+  currentFilePath: "",
+  setCurrentFilePath: (path) => set({ currentFilePath: path }),
+}));
+
+export {useExtension, useEditorValue, useTabFileName, useNewFileModal, useCurrentFilePath}

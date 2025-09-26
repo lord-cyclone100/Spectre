@@ -106,6 +106,7 @@ export const App = () => {
       
           language={getLanguageByExtension(fileExtension)}
           value={editorValue}
+          onChange={(value) => setEditorValue(value || '')}
           
           theme="vs-dark"
           options={{
