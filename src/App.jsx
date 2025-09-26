@@ -3,14 +3,14 @@ import * as monaco from 'monaco-editor'
 import "./App.css";
 import { useState, useRef, useEffect } from "react";
 import { tabs } from "./api/tabs";
-import { open } from "@tauri-apps/plugin-dialog";
-import { readTextFile } from "@tauri-apps/plugin-fs";
+import { MenuTab } from "./components/MenuTab";
+import { useEditorValue, useExtension, useTabFileName } from "./store/store";
 
 export const App = () => {
   const [sideBarWidth, setSideBarWidth] = useState(16);
-  const [editorValue, setEditorValue] = useState("");
-  const [tabFileName, setTabFileName] = useState("");
-  const [fileExtension, setFileExtension] = useState("");
+  const { fileExtension, setFileExtension } = useExtension()
+  const { editorValue, setEditorValue } = useEditorValue()
+  const { tabFileName, setTabFileName } = useTabFileName()
   const dragging = useRef(false);
 
   const languages = monaco.languages.getLanguages();
@@ -54,22 +54,6 @@ export const App = () => {
     };
   });
 
-  const handleClick = async() => {
-    const file = await open({
-      multiple: false,
-      directory: false,
-    });
-    if (file) {
-      // Read file content using Tauri's FS API
-      const content = await readTextFile(file);
-      setEditorValue(content);
-    }
-    const fileName = file.split('\\')
-    const fileExtension = fileName[fileName.length -1].split('.')[1]
-    setTabFileName(fileName[fileName.length -1])
-    setFileExtension(fileExtension)
-  }
-
   const getLanguageByExtension = (ext) => {
   // Find the language whose extensions include the given extension
   const lang = languages.find(lang =>
@@ -81,19 +65,19 @@ export const App = () => {
   return (
    <>
    <div className="flex flex-col">
-    <div className="h-[2.8vh] flex">
+    <div className="h-[2.8vh] flex bg-emerald-400 items-center">
       {
         tabs.map((tabname)=>(
-          <button className="btn btn-info h-[100%]">{tabname}</button>
+          // <button className="btn btn-info h-[100%]">{tabname}</button>
+          <MenuTab tabname={tabname.name} menu={tabname.submenu}/>
         ))
       }
     </div>
     <div className="flex h-[97.2vh]">
       <div style={{ width: `${sideBarWidth}vw` }} className="bg-amber-400 relative">
-        {/* Sidebar content goes here */}
         
-        {/* Draggable resize handle */}
-        <button className="btn" onClick={handleClick}>Open</button>
+        {/* <button className="btn" onClick={handleClick}>Open</button> */}
+        
         <div
           onMouseDown={handleMouseDown}
           className="absolute top-0 right-0 h-full w-1 cursor-ew-resize hover:w-2 bg-black/10 hover:bg-black/20 transition-all duration-150"
@@ -103,10 +87,10 @@ export const App = () => {
         <div className="h-[4vh]">{tabFileName}</div>
         <Editor height="96vh"
           width="100%"
-          // defaultLanguage="javascript"
+      
           language={getLanguageByExtension(fileExtension)}
           value={editorValue}
-          // onChange={setEditorValue}
+          
           theme="vs-dark"
           options={{
             fontSize:16,

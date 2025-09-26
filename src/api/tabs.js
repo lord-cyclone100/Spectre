@@ -1,8 +1,43 @@
 export const tabs = [
-  "File",
-  "Edit",
-  "Selection",
-  "Run",
-  "Terminal",
-  "Help"
+  {
+    name:"File",
+    submenu:[
+      {name:"New"},
+      {name:"Open"},
+    ]
+  },
+  {
+    name:"Edit",
+    submenu:[
+      {name:"Undo"},
+      {name:"Redo"},
+      {name:"Cut"},
+      {name:"Copy"},
+      {name:"Paste"},
+    ]
+  },
+  {
+    name:"Selection",
+    submenu:[
+      {name:"Select All"},
+    ]
+  },
+  {
+    name:"Run",
+    submenu:[
+      {name:"Run without Debugging"},
+    ]
+  },
+  {
+    name:"Terminal",
+    submenu:[
+      {name:"New"},
+    ]
+  },
+  {
+    name:"Help",
+    submenu:[
+      {name:"Documentation"},
+    ]
+  }
 ]
