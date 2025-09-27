@@ -3,7 +3,8 @@ export const tabs = [
     name:"File",
     submenu:[
       {name:"New"},
-      {name:"Open"},
+      {name:"Open File"},
+      {name:"Open Folder"},
       {name:"Save"},
       {name:"Save As"},
     ]
@@ -33,7 +34,7 @@ export const tabs = [
   {
     name:"Terminal",
     submenu:[
-      {name:"New"},
+      {name:"New Terminal"},
     ]
   },
   {

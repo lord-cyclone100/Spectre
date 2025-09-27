@@ -15,6 +15,11 @@ const useTabFileName = create((set) => ({
     setTabFileName: (val) => set({ tabFileName: val }),
 }))
 
+const useDirectoryName = create((set) => ({
+    directoryName: "",
+    setDirectoryName: (val) => set({ directoryName: val }),
+}))
+
 const useNewFileModal = create((set) => ({
     isNewFileModalOpen: false,
     setIsNewFileModalOpen: (val) => set({ isNewFileModalOpen: val }),
@@ -86,4 +91,13 @@ const useOpenFiles = create((set, get) => ({
   })
 }));
 
-export {useExtension, useEditorValue, useTabFileName, useNewFileModal, useCurrentFilePath, useOpenFiles}
+// Folder structure store
+const useFolderStructure = create((set) => ({
+  folderStructure: null,
+  currentFolderPath: "",
+  setFolderStructure: (structure) => set({ folderStructure: structure }),
+  setCurrentFolderPath: (path) => set({ currentFolderPath: path }),
+  clearFolderStructure: () => set({ folderStructure: null, currentFolderPath: "" }),
+}));
+
+export {useExtension, useEditorValue, useTabFileName, useDirectoryName, useNewFileModal, useCurrentFilePath, useOpenFiles, useFolderStructure}

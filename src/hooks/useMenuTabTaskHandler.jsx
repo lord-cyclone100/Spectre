@@ -1,6 +1,7 @@
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
-import { useEditorValue, useExtension, useTabFileName, useNewFileModal, useCurrentFilePath, useOpenFiles } from "../store/store";
+import { invoke } from "@tauri-apps/api/core";
+import { useEditorValue, useExtension, useTabFileName, useNewFileModal, useCurrentFilePath, useOpenFiles, useFolderStructure } from "../store/store";
 
 export function useMenuTabTaskHandler() {
   const { setFileExtension } = useExtension();
@@ -9,13 +10,14 @@ export function useMenuTabTaskHandler() {
   const { setIsNewFileModalOpen } = useNewFileModal();
   const { currentFilePath, setCurrentFilePath } = useCurrentFilePath();
   const { addOrUpdateFile, getActiveFile, updateFileContent, setActiveFile } = useOpenFiles();
+  const { setFolderStructure, setCurrentFolderPath } = useFolderStructure();
 
   const handler = async (name) => {
     if (name === "New") {
       setIsNewFileModalOpen(true);
       // Don't clear currentFilePath here, let the modal handle it
     }
-    if (name === "Open") {
+    if (name === "Open File") {
       const file = await open({ multiple: false, directory: false });
       if (file) {
         const content = await readTextFile(file);
@@ -40,6 +42,28 @@ export function useMenuTabTaskHandler() {
         setTabFileName(fullFileName);
         setFileExtension(fileExtension);
         setCurrentFilePath(file);
+      }
+    }
+    if(name === "Open Folder"){
+      try {
+        const folder = await open({
+          multiple: false,
+          directory: true,
+        });
+        
+        if (folder) {
+          // Get the folder structure from Rust backend
+          const folderContents = await invoke("read_folder_contents", { folderPath: folder });
+          
+          // Update the store with the folder structure
+          setFolderStructure(folderContents);
+          setCurrentFolderPath(folder);
+          
+          console.log("Folder structure loaded:", folderContents);
+        }
+      } catch (error) {
+        console.error("Error opening folder:", error);
+        alert("Error opening folder: " + error);
       }
     }
     if (name === "Save") {
