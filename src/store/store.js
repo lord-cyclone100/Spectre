@@ -25,4 +25,65 @@ const useCurrentFilePath = create((set) => ({
   setCurrentFilePath: (path) => set({ currentFilePath: path }),
 }));
 
-export {useExtension, useEditorValue, useTabFileName, useNewFileModal, useCurrentFilePath}
+// New multi-tab store
+const useOpenFiles = create((set, get) => ({
+  openFiles: [], // Array of {id, name, content, path, extension}
+  activeFileId: null,
+  
+  // Add or update a file
+  addOrUpdateFile: (file) => set((state) => {
+    const existingIndex = state.openFiles.findIndex(f => f.id === file.id);
+    if (existingIndex >= 0) {
+      // Update existing file
+      const updatedFiles = [...state.openFiles];
+      updatedFiles[existingIndex] = { ...updatedFiles[existingIndex], ...file };
+      return { openFiles: updatedFiles };
+    } else {
+      // Add new file
+      return { 
+        openFiles: [...state.openFiles, file],
+        activeFileId: file.id
+      };
+    }
+  }),
+  
+  // Remove a file
+  removeFile: (fileId) => set((state) => {
+    const newFiles = state.openFiles.filter(f => f.id !== fileId);
+    let newActiveId = state.activeFileId;
+    
+    // If we're removing the active file, switch to another one
+    if (state.activeFileId === fileId) {
+      if (newFiles.length > 0) {
+        // Switch to the last file in the list
+        newActiveId = newFiles[newFiles.length - 1].id;
+      } else {
+        newActiveId = null;
+      }
+    }
+    
+    return { 
+      openFiles: newFiles,
+      activeFileId: newActiveId
+    };
+  }),
+  
+  // Set active file
+  setActiveFile: (fileId) => set({ activeFileId: fileId }),
+  
+  // Get active file
+  getActiveFile: () => {
+    const state = get();
+    return state.openFiles.find(f => f.id === state.activeFileId) || null;
+  },
+  
+  // Update file content
+  updateFileContent: (fileId, content) => set((state) => {
+    const updatedFiles = state.openFiles.map(file => 
+      file.id === fileId ? { ...file, content } : file
+    );
+    return { openFiles: updatedFiles };
+  })
+}));
+
+export {useExtension, useEditorValue, useTabFileName, useNewFileModal, useCurrentFilePath, useOpenFiles}

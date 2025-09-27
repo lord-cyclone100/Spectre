@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useEditorValue, useExtension, useTabFileName } from "../store/store";
+import { useEditorValue, useExtension, useTabFileName, useOpenFiles } from "../store/store";
 
 export const NewFileModal = ({ isOpen, onClose, onConfirm }) => {
   const [fileName, setFileName] = useState("");
   const { setFileExtension } = useExtension();
   const { setEditorValue } = useEditorValue();
   const { setTabFileName } = useTabFileName();
+  const { addOrUpdateFile } = useOpenFiles();
 
   const handleCreate = () => {
     if (fileName.trim() && hasValidExtension(fileName)) {
@@ -13,11 +14,21 @@ export const NewFileModal = ({ isOpen, onClose, onConfirm }) => {
       const parts = fileName.split('.');
       const extension = parts.length > 1 ? parts[parts.length - 1] : '';
       
-      // Update store values
+      // Create a unique ID for new files (using timestamp + filename)
+      const fileId = `new_${Date.now()}_${fileName}`;
+      
+      // Add new file to multi-tab system
+      addOrUpdateFile({
+        id: fileId,
+        name: fileName,
+        content: '',
+        path: '', // No path yet for new files
+        extension: extension
+      });
+      
+      // Update legacy state for backward compatibility
       setTabFileName(fileName);
       setFileExtension(extension);
-      
-      // Set blank content for new file
       setEditorValue('');
       
       // Close modal and reset

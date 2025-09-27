@@ -5,7 +5,9 @@ import { useState, useRef, useEffect } from "react";
 import { tabs } from "./api/tabs";
 import { MenuTab } from "./components/MenuTab";
 import { NewFileModal } from "./components/NewFileModal";
-import { useEditorValue, useExtension, useTabFileName, useNewFileModal } from "./store/store";
+import { FileTabs } from "./components/FileTabs";
+import { useEditorValue, useExtension, useTabFileName, useNewFileModal, useOpenFiles } from "./store/store";
+import { FileTree } from "./components/FileTree";
 
 export const App = () => {
   const [sideBarWidth, setSideBarWidth] = useState(16);
@@ -13,6 +15,7 @@ export const App = () => {
   const { editorValue, setEditorValue } = useEditorValue()
   const { tabFileName, setTabFileName } = useTabFileName()
   const { isNewFileModalOpen, setIsNewFileModalOpen } = useNewFileModal()
+  const { openFiles, activeFileId, getActiveFile, updateFileContent } = useOpenFiles()
   const dragging = useRef(false);
 
   const languages = monaco.languages.getLanguages();
@@ -40,6 +43,28 @@ export const App = () => {
     const newWidth = (e.clientX / window.innerWidth) * 100;
     // Clamp between 10vw and 60vw
     setSideBarWidth(Math.min(Math.max(newWidth, 10), 60));
+  };
+
+  // Sync active file with editor
+  useEffect(() => {
+    const activeFile = getActiveFile();
+    if (activeFile) {
+      setEditorValue(activeFile.content);
+      setTabFileName(activeFile.name);
+      setFileExtension(activeFile.extension);
+    }
+  }, [activeFileId, getActiveFile, setEditorValue, setTabFileName, setFileExtension]);
+
+  // Handle editor content changes
+  const handleEditorChange = (value) => {
+    const newValue = value || '';
+    setEditorValue(newValue);
+    
+    // Update the active file's content in the store
+    const activeFile = getActiveFile();
+    if (activeFile) {
+      updateFileContent(activeFile.id, newValue);
+    }
   };
 
   // Attach/remove listeners
@@ -93,20 +118,20 @@ export const App = () => {
       <div style={{ width: `${sideBarWidth}vw` }} className="bg-amber-400 relative">
         
         {/* <button className="btn" onClick={handleClick}>Open</button> */}
-        
+        <FileTree />
         <div
           onMouseDown={handleMouseDown}
           className="absolute top-0 right-0 h-full w-1 cursor-ew-resize hover:w-2 bg-black/10 hover:bg-black/20 transition-all duration-150"
         />
       </div>
       <div style={{ width: `${100 - sideBarWidth}vw` }}className="bg-rose-400">
-        <div className="h-[4vh]">{tabFileName}</div>
+        <FileTabs />
         <Editor height="96vh"
           width="100%"
       
           language={getLanguageByExtension(fileExtension)}
           value={editorValue}
-          onChange={(value) => setEditorValue(value || '')}
+          onChange={handleEditorChange}
           
           theme="vs-dark"
           options={{
