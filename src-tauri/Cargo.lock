@@ -3739,6 +3739,7 @@ dependencies = [
 name = "tauri-app"
 version = "0.1.0"
 dependencies = [
+ "lazy_static",
  "serde",
  "serde_json",
  "tauri",

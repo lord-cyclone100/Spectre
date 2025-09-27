@@ -100,4 +100,68 @@ const useFolderStructure = create((set) => ({
   clearFolderStructure: () => set({ folderStructure: null, currentFolderPath: "" }),
 }));
 
-export {useExtension, useEditorValue, useTabFileName, useDirectoryName, useNewFileModal, useCurrentFilePath, useOpenFiles, useFolderStructure}
+// Terminal store
+const useTerminal = create((set, get) => ({
+  terminals: [], // Array of terminal sessions
+  activeTerminalId: null,
+  isTerminalVisible: false,
+  
+  // Add a new terminal session
+  addTerminal: (terminal) => set((state) => ({
+    terminals: [...state.terminals, terminal],
+    activeTerminalId: terminal.id,
+    isTerminalVisible: true,
+  })),
+  
+  // Remove a terminal session
+  removeTerminal: (terminalId) => set((state) => {
+    const newTerminals = state.terminals.filter(t => t.id !== terminalId);
+    let newActiveId = state.activeTerminalId;
+    
+    if (state.activeTerminalId === terminalId) {
+      if (newTerminals.length > 0) {
+        newActiveId = newTerminals[newTerminals.length - 1].id;
+      } else {
+        newActiveId = null;
+      }
+    }
+    
+    return {
+      terminals: newTerminals,
+      activeTerminalId: newActiveId,
+      isTerminalVisible: newTerminals.length > 0,
+    };
+  }),
+  
+  // Set active terminal
+  setActiveTerminal: (terminalId) => set({ activeTerminalId: terminalId }),
+  
+  // Get active terminal
+  getActiveTerminal: () => {
+    const state = get();
+    return state.terminals.find(t => t.id === state.activeTerminalId) || null;
+  },
+  
+  // Update terminal output
+  updateTerminalOutput: (terminalId, output) => set((state) => ({
+    terminals: state.terminals.map(terminal =>
+      terminal.id === terminalId
+        ? { ...terminal, output: [...(terminal.output || []), output] }
+        : terminal
+    ),
+  })),
+  
+  // Show/hide terminal
+  setTerminalVisible: (visible) => set({ isTerminalVisible: visible }),
+  
+  // Update terminal working directory
+  updateTerminalDirectory: (terminalId, directory) => set((state) => ({
+    terminals: state.terminals.map(terminal =>
+      terminal.id === terminalId
+        ? { ...terminal, workingDirectory: directory }
+        : terminal
+    ),
+  })),
+}));
+
+export {useExtension, useEditorValue, useTabFileName, useDirectoryName, useNewFileModal, useCurrentFilePath, useOpenFiles, useFolderStructure, useTerminal}

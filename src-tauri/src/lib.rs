@@ -1,5 +1,8 @@
 use std::fs;
 use std::path::Path;
+use std::process::Command;
+use std::sync::{Arc, Mutex};
+use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -8,6 +11,24 @@ pub struct FileItem {
     path: String,
     is_directory: bool,
     children: Option<Vec<FileItem>>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TerminalSession {
+    id: String,
+    shell_type: String,
+    working_directory: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TerminalOutput {
+    output: String,
+    is_error: bool,
+}
+
+// Global state for managing terminal sessions (simplified for now)
+lazy_static::lazy_static! {
+    static ref TERMINAL_COUNTER: Arc<Mutex<u32>> = Arc::new(Mutex::new(0));
 }
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -40,6 +61,86 @@ fn test_read_file(file_path: String) -> Result<String, String> {
             Err(e.to_string())
         }
     }
+}
+
+#[tauri::command]
+async fn create_terminal_session(shell_type: String, working_directory: Option<String>) -> Result<TerminalSession, String> {
+    // Generate simple session ID
+    let mut counter = TERMINAL_COUNTER.lock().unwrap();
+    *counter += 1;
+    let session_id = format!("terminal_{}", *counter);
+    drop(counter);
+    
+    let work_dir = working_directory.unwrap_or_else(|| std::env::current_dir().unwrap().to_string_lossy().to_string());
+    
+    println!("Creating terminal session: {} with shell: {}", session_id, shell_type);
+    
+    let session = TerminalSession {
+        id: session_id.clone(),
+        shell_type: shell_type.clone(),
+        working_directory: work_dir.clone(),
+    };
+    
+    Ok(session)
+}
+
+#[tauri::command]
+async fn execute_terminal_command(session_id: String, command: String, shell_type: String, working_directory: String) -> Result<TerminalOutput, String> {
+    println!("Executing command '{}' in session: {}", command, session_id);
+    
+    let output = if shell_type == "powershell" {
+        Command::new("powershell")
+            .args(&["-Command", &command])
+            .current_dir(&working_directory)
+            .output()
+            .map_err(|e| e.to_string())?
+    } else {
+        // Default to cmd
+        Command::new("cmd")
+            .args(&["/C", &command])
+            .current_dir(&working_directory)
+            .output()
+            .map_err(|e| e.to_string())?
+    };
+    
+    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+    
+    if !stderr.is_empty() {
+        Ok(TerminalOutput {
+            output: stderr,
+            is_error: true,
+        })
+    } else {
+        Ok(TerminalOutput {
+            output: stdout,
+            is_error: false,
+        })
+    }
+}
+
+#[tauri::command]
+async fn get_current_directory(_session_id: String, shell_type: String) -> Result<String, String> {
+    let command = if shell_type == "powershell" {
+        "Get-Location | Select-Object -ExpandProperty Path"
+    } else {
+        "cd"
+    };
+    
+    let output = if shell_type == "powershell" {
+        Command::new("powershell")
+            .args(&["-Command", command])
+            .output()
+            .map_err(|e| e.to_string())?
+    } else {
+        Command::new("cmd")
+            .args(&["/C", command])
+            .output()
+            .map_err(|e| e.to_string())?
+    };
+    
+    let result = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    Ok(result)
 }
 
 // New command for lazy loading subdirectories
@@ -114,7 +215,15 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet, read_folder_contents, test_read_file, read_subdirectory])
+        .invoke_handler(tauri::generate_handler![
+            greet, 
+            read_folder_contents, 
+            test_read_file, 
+            read_subdirectory,
+            create_terminal_session,
+            execute_terminal_command,
+            get_current_directory
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

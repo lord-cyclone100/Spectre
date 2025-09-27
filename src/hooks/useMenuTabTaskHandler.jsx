@@ -1,7 +1,7 @@
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { invoke } from "@tauri-apps/api/core";
-import { useEditorValue, useExtension, useTabFileName, useNewFileModal, useCurrentFilePath, useOpenFiles, useFolderStructure } from "../store/store";
+import { useEditorValue, useExtension, useTabFileName, useNewFileModal, useCurrentFilePath, useOpenFiles, useFolderStructure, useTerminal } from "../store/store";
 
 export function useMenuTabTaskHandler() {
   const { setFileExtension } = useExtension();
@@ -10,7 +10,8 @@ export function useMenuTabTaskHandler() {
   const { setIsNewFileModalOpen } = useNewFileModal();
   const { currentFilePath, setCurrentFilePath } = useCurrentFilePath();
   const { addOrUpdateFile, getActiveFile, updateFileContent, setActiveFile } = useOpenFiles();
-  const { setFolderStructure, setCurrentFolderPath } = useFolderStructure();
+  const { setFolderStructure, setCurrentFolderPath, currentFolderPath } = useFolderStructure();
+  const { addTerminal } = useTerminal();
 
   const handler = async (name) => {
     if (name === "New") {
@@ -140,6 +141,30 @@ export function useMenuTabTaskHandler() {
       } catch (error) {
         console.error("Error saving file:", error);
         alert("Error saving file: " + error.message);
+      }
+    }
+    if (name === "New Terminal") {
+      try {
+        // Use the current folder path if available, otherwise use null for default
+        const workingDir = currentFolderPath || null;
+        
+        const terminalSession = await invoke("create_terminal_session", {
+          shellType: "powershell", // Default to PowerShell, can be made configurable
+          workingDirectory: workingDir
+        });
+        
+        // Add the terminal session to our store
+        addTerminal({
+          id: terminalSession.id,
+          shellType: terminalSession.shell_type,
+          workingDirectory: terminalSession.working_directory,
+          output: []
+        });
+        
+        console.log("Created new terminal session:", terminalSession.id, "in directory:", terminalSession.working_directory);
+      } catch (error) {
+        console.error("Error creating terminal:", error);
+        alert("Error creating terminal: " + error);
       }
     }
   };

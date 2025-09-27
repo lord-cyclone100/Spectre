@@ -6,8 +6,9 @@ import { tabs } from "./api/tabs";
 import { MenuTab } from "./components/MenuTab";
 import { NewFileModal } from "./components/NewFileModal";
 import { FileTabs } from "./components/FileTabs";
-import { useEditorValue, useExtension, useTabFileName, useNewFileModal, useOpenFiles } from "./store/store";
+import { useEditorValue, useExtension, useTabFileName, useNewFileModal, useOpenFiles, useTerminal } from "./store/store";
 import { FileTree } from "./components/FileTree";
+import { Terminal } from "./components/Terminal";
 
 export const App = () => {
   const [sideBarWidth, setSideBarWidth] = useState(16);
@@ -16,6 +17,7 @@ export const App = () => {
   const { tabFileName, setTabFileName } = useTabFileName()
   const { isNewFileModalOpen, setIsNewFileModalOpen } = useNewFileModal()
   const { openFiles, activeFileId, getActiveFile, updateFileContent } = useOpenFiles()
+  const { isTerminalVisible } = useTerminal()
   const dragging = useRef(false);
 
   const languages = monaco.languages.getLanguages();
@@ -124,22 +126,24 @@ export const App = () => {
           className="absolute top-0 right-0 h-full w-1 cursor-ew-resize hover:w-2 bg-black/10 hover:bg-black/20 transition-all duration-150"
         />
       </div>
-      <div style={{ width: `${100 - sideBarWidth}vw` }}className="bg-rose-400">
+      <div style={{ width: `${100 - sideBarWidth}vw` }} className="bg-rose-400 flex flex-col">
         <FileTabs />
-        <Editor height="96vh"
-          width="100%"
-      
-          language={getLanguageByExtension(fileExtension)}
-          value={editorValue}
-          onChange={handleEditorChange}
-          
-          theme="vs-dark"
-          options={{
-            fontSize:16,
-            fontFamily: "Urbanist",
-            smoothScrolling:true
-          }}
-        />
+        <div className="flex-1 flex flex-col">
+          <Editor 
+            height={isTerminalVisible ? "calc(96vh - 20rem)" : "96vh"}
+            width="100%"
+            language={getLanguageByExtension(fileExtension)}
+            value={editorValue}
+            onChange={handleEditorChange}
+            theme="vs-dark"
+            options={{
+              fontSize:16,
+              fontFamily: "Urbanist",
+              smoothScrolling:true
+            }}
+          />
+          <Terminal />
+        </div>
       </div>
     </div>
    </div>
