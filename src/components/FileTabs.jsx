@@ -1,7 +1,9 @@
 import { useOpenFiles } from "../store/store";
+import { useEditorValue } from "../store/store";
 
 export const FileTabs = () => {
   const { openFiles, activeFileId, setActiveFile, removeFile } = useOpenFiles();
+  const { editorValue, setEditorValue } = useEditorValue()
 
   const handleTabClick = (fileId) => {
     setActiveFile(fileId);
@@ -13,6 +15,7 @@ export const FileTabs = () => {
   };
 
   if (openFiles.length === 0) {
+    // setEditorValue("")
     return (
       <div className="h-[4vh] flex items-center px-3 text-gray-600">
         No files open

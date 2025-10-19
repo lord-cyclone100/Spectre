@@ -178,7 +178,7 @@ export const Terminal = () => {
   }
 
   return (
-    <div className="h-80 border-t border-base-300 bg-base-100 flex flex-col">
+    <div className="absolute bottom-0 left-0 right-0 h-80 border-t border-base-300 bg-base-100 flex flex-col z-50">
       {/* Terminal tabs */}
       <div className="flex items-center bg-base-200 border-b border-base-300">
         <div className="flex">

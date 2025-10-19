@@ -9,6 +9,7 @@ import { FileTabs } from "./components/FileTabs";
 import { useEditorValue, useExtension, useTabFileName, useNewFileModal, useOpenFiles, useTerminal } from "./store/store";
 import { FileTree } from "./components/FileTree";
 import { Terminal } from "./components/Terminal";
+import { EmptyEditor } from "./components/EmptyEditor";
 
 export const App = () => {
   const [sideBarWidth, setSideBarWidth] = useState(16);
@@ -126,22 +127,26 @@ export const App = () => {
           className="absolute top-0 right-0 h-full w-1 cursor-ew-resize hover:w-2 bg-black/10 hover:bg-black/20 transition-all duration-150"
         />
       </div>
-      <div style={{ width: `${100 - sideBarWidth}vw` }} className="bg-rose-400 flex flex-col">
+      <div style={{ width: `${100 - sideBarWidth}vw` }} className="bg-rose-400 flex flex-col relative">
         <FileTabs />
         <div className="flex-1 flex flex-col">
-          <Editor 
-            height={isTerminalVisible ? "calc(96vh - 20rem)" : "96vh"}
-            width="100%"
-            language={getLanguageByExtension(fileExtension)}
-            value={editorValue}
-            onChange={handleEditorChange}
-            theme="vs-dark"
-            options={{
-              fontSize:16,
-              fontFamily: "Urbanist",
-              smoothScrolling:true
-            }}
-          />
+          {openFiles.length === 0 ? (
+            <EmptyEditor />
+          ):(
+            <Editor 
+              height="93.4vh"
+              width="100%"
+              language={getLanguageByExtension(fileExtension)}
+              value={editorValue}
+              onChange={handleEditorChange}
+              theme="vs-dark"
+              options={{
+                fontSize:16,
+                fontFamily: "Urbanist",
+                smoothScrolling:true
+              }}
+            />
+          )}
           <Terminal />
         </div>
       </div>
