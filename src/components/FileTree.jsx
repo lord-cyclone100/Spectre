@@ -77,27 +77,27 @@ const FileTreeItem = ({ item, onFileClick }) => {
         <div className="w-full">
           <div 
             onClick={handleDirectoryExpand}
-            className="flex items-center gap-2 p-2 hover:bg-base-300 cursor-pointer rounded"
+            className="flex items-center gap-2 px-2 py-1 hover:bg-[#4a9eff]/10 cursor-pointer transition-colors text-[#4a9eff]"
           >
             <div className="flex items-center gap-1">
               {/* Expand/collapse arrow */}
               <span className={`transition-transform duration-200 text-xs ${isExpanded ? 'rotate-90' : ''}`}>
-                {'>'}
+                ▶
               </span>
               <FolderIcon />
             </div>
             <span className="text-sm">{item.name}</span>
-            {isLoading && <span className="text-xs text-gray-500 ml-2">Loading...</span>}
+            {isLoading && <span className="text-xs text-[#6bb6ff] ml-2">Loading...</span>}
           </div>
           
           {isExpanded && (
-            <div className="ml-4 border-l border-base-300 pl-2">
-              <ul className="space-y-1">
+            <div className="ml-4 border-l border-[#4a9eff]/30 pl-2">
+              <ul className="space-y-0.5">
                 {children.map((child, index) => (
                   <FileTreeItem key={`${child.path}-${index}`} item={child} onFileClick={onFileClick} />
                 ))}
                 {children.length === 0 && !isLoading && (
-                  <li className="text-xs text-gray-500 p-2">Empty folder</li>
+                  <li className="text-xs text-[#6bb6ff] p-2">Empty folder</li>
                 )}
               </ul>
             </div>
@@ -111,7 +111,7 @@ const FileTreeItem = ({ item, onFileClick }) => {
       <li className="w-full">
         <a 
           onClick={handleFileClick} 
-          className="flex items-center gap-2 p-2 hover:bg-base-300 cursor-pointer rounded text-sm"
+          className="flex items-center gap-2 px-2 py-1 hover:bg-[#4a9eff]/10 cursor-pointer transition-colors text-sm text-[#6bb6ff]"
         >
           <FileIcon />
           <span>{item.name}</span>
@@ -170,11 +170,13 @@ export const FileTree = () => {
 
   if (!folderStructure || folderStructure.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-500">
+      <div className="flex items-center justify-center h-full text-[#6bb6ff]">
         <div className="text-center">
-          <FolderIcon />
+          <div className="flex justify-center mb-2">
+            <FolderIcon />
+          </div>
           <p className="mt-2 text-sm">No folder opened</p>
-          <p className="text-xs">Use File → Open Folder to browse files</p>
+          <p className="text-xs mt-1">File → Open Folder</p>
         </div>
       </div>
     );
@@ -184,13 +186,16 @@ export const FileTree = () => {
   const folderName = currentFolderPath.split(/[/\\]/).pop() || "Folder";
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="p-2 bg-base-300 text-sm font-semibold border-b flex items-center gap-2">
+    <div className="h-full flex flex-col bg-[#0d0d1a]">
+      <div className="px-3 py-2 bg-[#0d0d1a] text-xs font-semibold border-b border-[#4a9eff]/30 flex items-center gap-2 text-[#4a9eff] uppercase tracking-wider">
+        <span>Explorer</span>
+      </div>
+      <div className="px-2 py-2 bg-[#0d0d1a] text-sm font-medium border-b border-[#4a9eff]/30 flex items-center gap-2 text-[#4a9eff]">
         <FolderIcon />
         <span>{folderName}</span>
       </div>
-      <div className="flex-1 bg-base-200 overflow-y-auto">
-        <ul className="p-2 space-y-1">
+      <div className="flex-1 bg-[#0d0d1a] overflow-y-auto">
+        <ul className="p-1 space-y-0.5">
           {folderStructure.map((item, index) => (
             <FileTreeItem key={index} item={item} onFileClick={handleFileClick} />
           ))}

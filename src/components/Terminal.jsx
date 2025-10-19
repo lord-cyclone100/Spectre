@@ -4,16 +4,16 @@ import { invoke } from "@tauri-apps/api/core";
 
 const TerminalTab = ({ terminal, isActive, onSelect, onClose }) => {
   return (
-    <div className={`flex items-center gap-2 px-3 py-1 text-sm border-r border-base-300 cursor-pointer ${
-      isActive ? 'bg-base-300' : 'bg-base-200 hover:bg-base-300'
+    <div className={`flex items-center gap-2 px-3 py-1 text-sm border-r border-[#4a9eff]/20 cursor-pointer transition-colors ${
+      isActive ? 'bg-[#0a0a0f] text-[#4a9eff]' : 'bg-[#0f0f1e] text-[#6bb6ff] hover:bg-[#4a9eff]/10'
     }`}>
       <span onClick={onSelect} className="flex-1">
         {terminal.shellType === 'powershell' ? 'PowerShell' : 'Command Prompt'} 
-        <span className="text-xs text-gray-500 ml-1">({terminal.id.slice(-4)})</span>
+        <span className="text-xs opacity-60 ml-1">({terminal.id.slice(-4)})</span>
       </span>
       <button 
         onClick={onClose}
-        className="text-xs hover:text-red-500 ml-1"
+        className="text-base hover:text-[#ff6b6b] hover:bg-[#4a9eff]/20 rounded w-5 h-5 flex items-center justify-center transition-colors"
         title="Close terminal"
       >
         ×
@@ -118,26 +118,26 @@ const TerminalSession = ({ terminal }) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-black text-green-400 font-mono text-sm">
+    <div className="flex flex-col h-full bg-[#0a0a0f] text-[#4a9eff] font-mono text-sm">
       {/* Terminal Output */}
       <div 
         ref={outputRef}
-        className="flex-1 p-2 overflow-y-auto space-y-1"
+        className="flex-1 p-3 overflow-y-auto space-y-1"
         style={{ minHeight: 0 }}
       >
         {/* Welcome message */}
-        <div className="text-gray-400 text-xs">
+        <div className="text-[#6bb6ff] text-xs">
           {terminal.shellType === 'powershell' ? 'Windows PowerShell' : 'Command Prompt'}
         </div>
-        <div className="text-gray-400 text-xs mb-2">
+        <div className="text-[#6bb6ff] text-xs mb-2">
           Working Directory: {currentDirectory}
         </div>
         
         {/* Command output */}
         {terminal.output && terminal.output.map((item, index) => (
           <div key={index} className={`whitespace-pre-wrap ${
-            item.type === 'command' ? 'text-white' :
-            item.type === 'error' ? 'text-red-400' : 'text-green-400'
+            item.type === 'command' ? 'text-[#4a9eff]' :
+            item.type === 'error' ? 'text-[#ff6b6b]' : 'text-[#8cc5ff]'
           }`}>
             {item.content}
           </div>
@@ -145,14 +145,14 @@ const TerminalSession = ({ terminal }) => {
       </div>
       
       {/* Input line */}
-      <div className="p-2 border-t border-gray-700 flex items-center gap-2">
-        <span className="text-white font-bold">{getPrompt()}</span>
+      <div className="p-3 border-t border-[#4a9eff]/30 flex items-center gap-2 bg-[#0f0f1e]">
+        <span className="text-[#4a9eff] font-semibold">{getPrompt()}</span>
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}
-          className="flex-1 bg-transparent text-green-400 outline-none"
+          className="flex-1 bg-transparent text-[#4a9eff] outline-none placeholder:text-[#6bb6ff]/50"
           placeholder="Enter command..."
           autoFocus
         />
@@ -178,9 +178,9 @@ export const Terminal = () => {
   }
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 h-80 border-t border-base-300 bg-base-100 flex flex-col z-50">
+    <div className="absolute bottom-0 left-0 right-0 h-80 border-t border-[#4a9eff] bg-[#0a0a0f] flex flex-col z-50 shadow-2xl shadow-[#4a9eff]/20">
       {/* Terminal tabs */}
-      <div className="flex items-center bg-base-200 border-b border-base-300">
+      <div className="flex items-center bg-[#0f0f1e] border-b border-[#4a9eff]/30">
         <div className="flex">
           {terminals.map((terminal) => (
             <TerminalTab
@@ -195,7 +195,7 @@ export const Terminal = () => {
         <div className="flex-1"></div>
         <button
           onClick={() => setTerminalVisible(false)}
-          className="px-2 py-1 text-sm hover:bg-base-300"
+          className="px-3 py-1 text-[#4a9eff] hover:bg-[#4a9eff]/20 transition-colors text-lg"
           title="Hide terminal"
         >
           ×

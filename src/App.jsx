@@ -108,26 +108,23 @@ export const App = () => {
      onClose={handleModalClose}
      onConfirm={handleModalConfirm}
    />
-   <div className="flex flex-col">
-    <div className="h-[2.8vh] flex bg-emerald-400 items-center">
+   <div className="flex flex-col h-screen bg-[#0a0a0f]">
+    <div className="h-[2.8vh] flex bg-[#0f0f1e] items-center border-b border-[#4a9eff] shadow-lg shadow-[#4a9eff]/20">
       {
         tabs.map((tabname)=>(
-          // <button className="btn btn-info h-[100%]">{tabname}</button>
           <MenuTab tabname={tabname.name} menu={tabname.submenu}/>
         ))
       }
     </div>
     <div className="flex h-[97.2vh]">
-      <div style={{ width: `${sideBarWidth}vw` }} className="bg-amber-400 relative">
-        
-        {/* <button className="btn" onClick={handleClick}>Open</button> */}
+      <div style={{ width: `${sideBarWidth}vw` }} className="bg-[#0d0d1a] relative border-r border-[#4a9eff]/30">
         <FileTree />
         <div
           onMouseDown={handleMouseDown}
-          className="absolute top-0 right-0 h-full w-1 cursor-ew-resize hover:w-2 bg-black/10 hover:bg-black/20 transition-all duration-150"
+          className="absolute top-0 right-0 h-full w-1 cursor-ew-resize hover:w-[3px] bg-transparent hover:bg-[#4a9eff] transition-all duration-150 z-10"
         />
       </div>
-      <div style={{ width: `${100 - sideBarWidth}vw` }} className="bg-rose-400 flex flex-col relative">
+      <div style={{ width: `${100 - sideBarWidth}vw` }} className="bg-[#0a0a0f] flex flex-col relative">
         <FileTabs />
         <div className="flex-1 flex flex-col">
           {openFiles.length === 0 ? (
@@ -147,8 +144,8 @@ export const App = () => {
               }}
             />
           )}
-          <Terminal />
         </div>
+        <Terminal />
       </div>
     </div>
    </div>

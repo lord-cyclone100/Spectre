@@ -15,31 +15,30 @@ export const FileTabs = () => {
   };
 
   if (openFiles.length === 0) {
-    // setEditorValue("")
     return (
-      <div className="h-[4vh] flex items-center px-3 text-gray-600">
-        No files open
+      <div className="h-[4vh] flex items-center px-3 bg-[#0f0f1e] border-b border-[#4a9eff]/30">
+        {/* Empty tab bar */}
       </div>
     );
   }
 
   return (
-    <div className="h-[4vh] flex items-center overflow-x-auto">
+    <div className="h-[4vh] flex items-center overflow-x-auto bg-[#0f0f1e] border-b border-[#4a9eff]/30">
       {openFiles.map((file) => (
         <div
           key={file.id}
-          className={`flex items-center px-3 py-1 mx-1 rounded-t-md cursor-pointer min-w-max border-b-2 ${
+          className={`flex items-center gap-2 px-4 py-2 cursor-pointer min-w-max border-r border-[#4a9eff]/20 transition-colors ${
             activeFileId === file.id 
-              ? 'bg-white/20 border-white text-white' 
-              : 'bg-white/10 border-transparent text-gray-200 hover:bg-white/15'
+              ? 'bg-[#0a0a0f] text-[#4a9eff] border-b-2 border-b-[#4a9eff]' 
+              : 'bg-[#0f0f1e] text-[#6bb6ff] hover:bg-[#4a9eff]/10'
           }`}
           onClick={() => handleTabClick(file.id)}
         >
-          <span className="text-sm mr-2">{file.name}</span>
+          <span className="text-sm">{file.name}</span>
           <button
-            className="text-xs hover:bg-white/20 rounded px-1"
+            className="text-base hover:bg-[#4a9eff]/20 rounded w-5 h-5 flex items-center justify-center transition-colors"
             onClick={(e) => handleCloseTab(e, file.id)}
-            title="Close tab"
+            title="Close"
           >
             ×
           </button>
